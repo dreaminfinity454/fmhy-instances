@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FMHY Instance Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #1a1a1a; color: #fff; padding: 20px; }
+        .card { background: #2d2d2d; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+        .online { color: #4caf50; }
+        .offline { color: #f44336; }
+        .safe { color: #00bcd4; }
+    </style>
+</head>
+<body>
+    <h1>FMHY Instance Status</h1>
+    <p>Last updated: <span id="time">Loading...</span></p>
+    <div id="instances"></div>
+
+    <script>
+        fetch('status.json')
+            .then(response => response.json())
+            .then(data => {
+                const date = new Date(data.last_updated);
+                document.getElementById('time').innerText = date.toLocaleString();
+                
+                const container = document.getElementById('instances');
+                data.instances.forEach(site => {
+                    const statusColor = site.status === 'Online' ? 'online' : 'offline';
+                    const safeText = site.safe ? '<span class="safe">✔ Verified Safe Content</span>' : '<span class="offline">✖ Hijack Warning</span>';
+                    const searchStatus = site.search_works ? '✔ Working' : '✖ Down';
+                    
+                    container.innerHTML += `
+                        <div class="card">
+                            <h3><a href="${site.url}" target="_blank" style="color:#fff;">${site.name}</a></h3>
+                            <p>Status: <strong class="${statusColor}">${site.status}</strong> (${site.response_time}ms)</p>
+                            <p>Integrity: ${safeText}</p>
+                            <p>Search Service: ${searchStatus}</p>
+                        </div>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>
